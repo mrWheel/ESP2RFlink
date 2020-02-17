@@ -20,6 +20,7 @@ static int front = 0, rear = 0, noElements = 0;
 stackStruct  mqttStack[_MAX_QUEUE+1];
 
 
+//=================================================================================
 int enQueue(char* Topic, char* payLoad) {
 int iX;
 
@@ -62,6 +63,7 @@ int iX;
 }   // enQueue()
 
 
+//=================================================================================
 int deQueue(char* Topic, char* payLoad) {
 int iX;
 
@@ -110,26 +112,31 @@ int iX;
 }   // deQueue()
 
 //------ helpers ------
+//=================================================================================
 int isFull() {
     return noElements == _MAX_QUEUE;
     
 }   // isFull()
  
+//=================================================================================
 int isEmpty() {
       return noElements == 0;
       
 }   // isEmpty()
 
+//=================================================================================
 int inQueue() {
     return noElements;
     
 }   // isQueue()
 
+//=================================================================================
 int toQueueSlot() {
     return rear;
     
 }   // toQueueSlot()
 
+//=================================================================================
 int fromQueueSlot() {
     return front;
     

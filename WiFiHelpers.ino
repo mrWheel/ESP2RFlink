@@ -19,6 +19,7 @@ void resetESP() {
 
 }   // blink()
 
+//=================================================================================
 //gets called when WiFiManager enters configuration mode
 void configModeCallback (WiFiManager *myWiFiManager) {
     //blinker.attach(5.0, blink);
@@ -32,6 +33,7 @@ void configModeCallback (WiFiManager *myWiFiManager) {
 }   // configModeCallback()
 
 
+//=================================================================================
 void setupWiFi() {
     digitalWrite(_BLINK_LED, HIGH);  
 
@@ -89,7 +91,14 @@ void setupWiFi() {
     topicJSON       = String(mqttConfig.topTopic) + "/JSON";
     topicDebug      = String(mqttConfig.topTopic) + "/Debug";
 
-    _INFO(  "setupWiFi(): Free Heap[B]: ");
+    //Serial.print(F("setupWiFi(): Free Heap[B]: "));
+    //Serial.println(ESP.getFreeHeap());
+    //Serial.print(F("setupWiFi(): Connected to SSID: "));
+    //Serial.println(WiFi.SSID());
+    //Serial.print(F("setupWiFi(): IP address: "));
+    //Serial.println(WiFi.localIP());
+
+    _INFO(    "setupWiFi(): Free Heap[B]: ");
     _INFOLN(ESP.getFreeHeap());
     _ALWAYS(  "setupWiFi(): Connected to SSID: ");
     _ALWAYSLN(WiFi.SSID());
@@ -100,14 +109,14 @@ void setupWiFi() {
     clientName  = String(mqttConfig.topTopic);
     clientName += String(micros() & 0xff, 16);
 
-    Dprint(  "setupWiFi(): Connecting to ");
-    Dprint(  mqtt_serverIP);
+    Dprint(  "setupWiFi(): Connected to ");
+    Dprint(  mqttConfig.serverIP);
     Dprint(  " as ");
     Dprint(  clientName);
     Dprint(  " with [");
-    Dprint(  mqtt_user);
+    Dprint(  mqttConfig.user);
     Dprint(  "]/[");
-    Dprint(  mqtt_passwd);
+    Dprint(  mqttConfig.passwd);
     Dprintln("] ");
     Dflush();
     delay(100);

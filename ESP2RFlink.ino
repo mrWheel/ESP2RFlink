@@ -2,7 +2,7 @@
 ***************************************************************************  
 **  Program  : ESP2RFlink
 */
-#define _FW_VERSION "v0.0.7 (17-02-2020)"
+#define _FW_VERSION "v0.7 (17-02-2020)"
 /*
 **  Copyright (c) 2020 Willem Aandewiel
 **
@@ -13,8 +13,8 @@
 
     - Board: "Generic ESP8266 Module"
     - Flash mode: "DOUT" | "DIO"    // change only after power-off and on again!
-    - Flash size: "512KB (FS:none OAT:~246KB)"  
-    -         or: "1MB (FS:none OAT:~502KB)
+    - Flash size: "1MB (FS:none OAT:~502KB)  
+    -   or maybe: "512KB (FS:none OAT:~246KB)"
     - DebugT port: "Disabled"
     - DebugT Level: "None"
     - IwIP Variant: "v2 Lower Memory"
@@ -23,7 +23,7 @@
     - VTables: "Flash"
     - Flash Frequency: "40MHz"
     - CPU Frequency: "80 MHz"
-    - Buildin Led: "2"  // ESP-01 (Black) GPIO01 - Pin 2 // "2" for ESP-01S
+    - Buildin Led: "2"  // not used?
     - Upload Speed: "115200"                                                                                                                                                                                                                                                 
     - Erase Flash: "Only Sketch"
     - Port: <select correct port>
@@ -33,9 +33,9 @@
 
     The MQTT_MAX_PACKET_SIZE set to 200 in PubSubClient.h
 */
-#include <ESP8266WiFi.h>          //https://github.com/esp8266/Arduino
+#include <ESP8266WiFi.h>          // https://github.com/esp8266/Arduino
 #include <ESP8266WebServer.h>
-#include <WiFiManager.h>         //https://github.com/tzapu/WiFiManager
+#include <WiFiManager.h>          // https://github.com/tzapu/WiFiManager
 #include <PubSubClient.h>
 #include <EEPROM.h>
 #include <Ticker.h>
@@ -45,7 +45,7 @@
 #define _MAX_STACK    10
 #define _TEMP_MAX     50.0
 #define _HUM_MAX     100
-#define _BLINK_LED     0
+#define _BLINK_LED     0  // GPIO00
 
 WiFiClient      wifiClient;
 WiFiClient      telnetClient;
@@ -60,7 +60,7 @@ enum { ERROR, ALWAYS, WARNING, DEBUG, INFO };    // debug levels
 typedef struct {
     char    configOK;           
     char    serverIP[30];
-    char    user[17];
+    char    user[25];
     char    passwd[17];
     char    topTopic[20];
 } mqttStruct;
@@ -75,9 +75,6 @@ typedef struct {
 // const char* ssid     = "xxxxxxxxxx"; // network SSID for ESP8266 to connect to
 // const char* password = "xxxxxxxxxx"; // password for the network above
 //-------------------------------------------------------------------------------
-char        mqtt_serverIP[40] = {'1','0','.','0','.','0','.','1','5','2'};
-char        mqtt_user[17]   = "pi";
-char        mqtt_passwd[17] = "raspberry";
 String      clientName;
 String      topicMessage    = "RFlink/Message" ;
 String      topicState      = "RFlink/State";
@@ -102,6 +99,7 @@ String      lastRFdevice    = "";
 String      lastRFcommand   = "";
 bool        isSwitch = false;
 uint16_t    flashTimer;
+//uint32_t    builtinLedTimer;
 extern      stackStruct mqttStack[_MAX_QUEUE+1];
 
 volatile int8_t      inStack = -1;
@@ -111,6 +109,7 @@ String CompassDirTable[17] = {"N","NNE","NE","ENE","E","ESE", "SE","SSE","S","SS
 
 uint32_t    waitForOK = millis();
 
+//============================================================
 bool compareArray(char* In1, char* In2) {
 int p = 0;
     while(In1[p] >= ' ' && In1[p] <= 'z' && In2[p] >= ' ' && In2[p] <= 'z') {
@@ -121,6 +120,7 @@ int p = 0;
     return true;
 }   // compareArray()
 
+//============================================================
 uint8_t pushMQTTmessage(char* Topic, char* payLoad) {
 int iX = 0, len = 0;
     _DEBUG("pushMQTTmessage(): Stackpointer["); _DEBUG(inStack); _DEBUGLN("]");
@@ -172,6 +172,7 @@ int iX = 0, len = 0;
 }   // pushMQTTmessage()
 
 
+//============================================================
 int popMQTTmessage(char* Topic, char* payLoad) {
 int iX = 0;
     _DEBUG("popMQTTmessage(): pop[");
@@ -653,6 +654,7 @@ String      RFcommand, subTopic;
 }   // replyMQTT2RFlink()
 
 
+//============================================================
 void callbackFromMQTT(char* topic, byte* payload, unsigned int len) {
 String  mqttTopic;
 char    cMessage[_MAX_BUFFER];
@@ -701,13 +703,16 @@ int     inQueue;
 }   // callbackFromMQTT()
 
 
+//=================================================================================
 void setup() {
     pinMode(_BLINK_LED,  OUTPUT);
+    //pinMode(BUILTIN_LED,  OUTPUT);
     digitalWrite(_BLINK_LED, HIGH);  
+    //digitalWrite(BUILTIN_LED, HIGH);  
 
     Serial.begin(57600);
     Serial.println();
-    Serial.println("[ESP2RFlinkTelnet v0.6] RFlink bridge to MQTT starting..\n");
+    Serial.println("[ESP2RFlinkTelnet v0.7] RFlink bridge to MQTT starting..\n");
     delay(100);
     Serial.flush();
 
@@ -723,23 +728,27 @@ void setup() {
 
     Serial.println("[ESP] WiFi setup complete");
     
-    mqttClient.setServer(mqtt_serverIP, 1883);
+    mqttClient.setServer(mqttConfig.serverIP, 1883);
     mqttClient.setCallback(callbackFromMQTT);
     Serial.println("[ESP] MQTT server setup complete");
     
     blinker.attach(2.0, blink);
     flashTimer = millis() + 200;
+  //builtinLedTimer = millis()+1000;
     keepAlive.attach(6000.0, pingPong);
 
     memset(mqttStack,0,sizeof(mqttStack));
+    //digitalWrite(BUILTIN_LED, LOW);  
 
 }   // setup()
 
 
+//=================================================================================
 void loop() {
-    //if (flashTimer < millis()) {
-    //    digitalWrite(_BLINK_LED, LOW);
-    //}
+  //if ((int32_t)(millis() - builtinLedTimer) > 0) {
+  //    builtinLedTimer = millis()+1000;
+  //    digitalWrite(BUILTIN_LED, !digitalRead(BUILTIN_LED));
+  //}
     if (!mqttClient.connected()) {
         reconnect2MQTT();
 

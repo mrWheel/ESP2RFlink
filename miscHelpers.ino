@@ -10,22 +10,26 @@
 
 
 
+//=================================================================================
 void blink() {
     //toggle state
     digitalWrite(_BLINK_LED, !digitalRead(_BLINK_LED));   // toggle pin to the opposite state
     flashTimer = millis() + 100;  
 }   // blink()
 
+//=================================================================================
 void pingPong() {
     Serial.println("10;PING;");
 }   // pingPong()
 
 
+//=================================================================================
 float hextofloat(char* hexchars) {return float(strtol(hexchars,NULL,16));}
 //float hextofloat(String hexchars) {return float(strtol(hexchars.c_str()(),NULL,16));}
 int hextoint(char* hexchars) {return strtol(hexchars,NULL,16);}
 
 
+//=================================================================================
 uint8_t splitBuffer(char* Buffer, int len) {
 int     fieldNum, tmpInt, ix;
 
@@ -59,6 +63,7 @@ int     fieldNum, tmpInt, ix;
 }   // splitBuffer()
 
 
+//=================================================================================
 String macToStr(const uint8_t* mac) {
     String result;
     for (int i = 0; i < 6; ++i) {
