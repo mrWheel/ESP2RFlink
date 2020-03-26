@@ -11,11 +11,11 @@
 #ifndef _MACROS_H
     #define _MACROS_H
     uint8_t     DebugLvl        = 1;           // only Errors
-    char*       errorPrompt     = "ERROR: ";
-    char*       alwaysPrompt    = "       ";
-    char*       warnPrompt      = "WARN : ";
-    char*       infoPrompt      = "INFO : ";
-    char*       debugPrompt     = "DEBUG: ";
+    const char *errorPrompt     = "ERROR: ";
+    const char *alwaysPrompt    = "       ";
+    const char *warnPrompt      = "WARN : ";
+    const char *infoPrompt      = "INFO : ";
+    const char *debugPrompt     = "DEBUG: ";
 #endif
 
 #define _MAX_QUEUE 5
@@ -44,7 +44,7 @@
                                 telnetClient.print(__VA_ARGS__);            \
                             } else if (Lvl < 2) {                           \
                                 Serial.print(__VA_ARGS__);                  \
-                            }                                               \  
+                            }                                               \
                             switch(Lvl) {                                   \
                                 case 0:  errorPrompt  = ""; break;          \
                                 case 1:  alwaysPrompt = ""; break;          \
@@ -68,7 +68,7 @@
                                 telnetClient.println(__VA_ARGS__);          \
                             } else if (Lvl < 2) {                           \
                                 Serial.println(__VA_ARGS__);                \
-                            }                                               \  
+                            }                                               \
                             switch(Lvl) {                                   \
                                 case 0:  errorPrompt  = "ERROR: "; break;   \
                                 case 1:  alwaysPrompt = "       "; break;   \

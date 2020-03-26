@@ -2,14 +2,14 @@
 ***************************************************************************  
 **  Program  : ESP2RFlink
 */
-#define _FW_VERSION "v0.7 (17-02-2020)"
+#define _FW_VERSION "v0.7 (26-02-2020)"
 /*
 **  Copyright (c) 2020 Willem Aandewiel
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
 *      
-  Arduino-IDE settings for DSMR-logger Version 4 (ESP-12):
+  Arduino-IDE settings for DSMR-logger Version 4 (ESP-01):
 
     - Board: "Generic ESP8266 Module"
     - Flash mode: "DOUT" | "DIO"    // change only after power-off and on again!

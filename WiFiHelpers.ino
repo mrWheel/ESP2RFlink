@@ -46,7 +46,7 @@ void setupWiFi() {
         wifiManager.resetSettings();
     }
     wifiManager.setConfigPortalTimeout(360);
-    WiFiManagerParameter custom_mqtt_server("server", "mqtt serverIP", mqttConfig.serverIP, 16);
+    WiFiManagerParameter custom_mqtt_server("server", "mqtt serverIP", mqttConfig.serverIP, 30);
     wifiManager.addParameter(&custom_mqtt_server);
     WiFiManagerParameter custom_mqtt_user("user", "mqtt User", mqttConfig.user, 16);
     wifiManager.addParameter(&custom_mqtt_user);
