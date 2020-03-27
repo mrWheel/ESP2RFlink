@@ -12,13 +12,25 @@
 //=================================================================================
 void reconnect2MQTT() {
     uint16_t ncCount = 0;
+    boolean connectState = false;
 
     blinker.attach(0.5, blink);
     
     // Loop until we're reconnected
-    while (!mqttClient.connected()) {
-        _INFO("reconnect2MQTT(): Attempting MQTT connection ... ");
-        if (mqttClient.connect((char*)mqttConfig.topTopic, (char*)mqttConfig.user, (char*)mqttConfig.passwd)) {
+    while (!mqttClient.connected() && (ncCount < 5)) {  // max try 4 times
+        if (strlen(mqttConfig.user) == 0)
+        {
+          _INFO("reconnect2MQTT(): Attempting MQTT connection (no username) ... ");
+          connectState = mqttClient.connect((char*)mqttConfig.topTopic);
+        }
+        else
+        {
+          _INFO("reconnect2MQTT(): Attempting MQTT connection with user/password ... ");
+          connectState = mqttClient.connect((char*)mqttConfig.topTopic, (char*)mqttConfig.user, (char*)mqttConfig.passwd);
+        }
+        
+        if (!connectState) 
+        {
             _INFOLN("Connected!!");
             Dflush();
             // Once connected, publish an announcement...
@@ -35,6 +47,7 @@ void reconnect2MQTT() {
             _INFOLN("]");
             mqttClient.subscribe(topicStateSetX.c_str());
             ncCount = 0;
+            return;
         } else {
             _DEBUG("mqtt username ["); _DEBUG((char*)mqttConfig.user);   _DEBUG("], ");
             _DEBUG("mqtt password ["); _DEBUG((char*)mqttConfig.passwd); _DEBUGLN("]");
@@ -42,11 +55,12 @@ void reconnect2MQTT() {
             _INFO(mqttClient.state());
             _INFOLN("reconnect2MQTT(): try again in 5 seconds");
             Dflush();
-            // Wait 5 seconds before retrying
-            delay(50000);
+            // Wait 1 second1 before retrying
+            delay(1000);
             pingNum   = 0;
             ncCount++;
         }
+        // it will never gome so far!
         if (ncCount > 360) {  // to long (30 min) no connection to MQTTserver
             WiFiManager wifiManager;
             wifiManager.resetSettings();

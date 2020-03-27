@@ -2,7 +2,7 @@
 ***************************************************************************  
 **  Program  : ESP2RFlink
 */
-#define _FW_VERSION "v0.7 (26-02-2020)"
+#define _FW_VERSION "v0.7 (27-02-2020)"
 /*
 **  Copyright (c) 2020 Willem Aandewiel
 **
@@ -99,7 +99,7 @@ String      lastRFdevice    = "";
 String      lastRFcommand   = "";
 bool        isSwitch = false;
 uint16_t    flashTimer;
-//uint32_t    builtinLedTimer;
+uint32_t    reconnectTimer;
 extern      stackStruct mqttStack[_MAX_QUEUE+1];
 
 volatile int8_t      inStack = -1;
@@ -730,7 +730,10 @@ void setup() {
     
     mqttClient.setServer(mqttConfig.serverIP, 1883);
     mqttClient.setCallback(callbackFromMQTT);
-    Serial.println("[ESP] MQTT server setup complete");
+    Serial.printf("[ESP] MQTT server [%s] setup complete\r\n", mqttConfig.serverIP);
+    if (strlen(mqttConfig.user) == 0)
+          Serial.println("[ESP] MQTT server no username/password");
+    else  Serial.printf("[ESP] MQTT server user[%s]password\r\n", mqttConfig.user, mqttConfig.passwd);
     
     blinker.attach(2.0, blink);
     flashTimer = millis() + 200;
@@ -749,9 +752,15 @@ void loop() {
   //    builtinLedTimer = millis()+1000;
   //    digitalWrite(BUILTIN_LED, !digitalRead(BUILTIN_LED));
   //}
-    if (!mqttClient.connected()) {
-        reconnect2MQTT();
 
+    if (millis() > reconnectTimer)
+    {
+      reconnectTimer = millis() + 30000;   
+      if (!mqttClient.connected()) {
+        reconnect2MQTT();
+      }
+      if (mqttClient.connected())
+      {
         _DEBUG("loop(): Subscribe to [");
         _DEBUG(topicStateSetX);
         _DEBUGLN("]");
@@ -760,6 +769,13 @@ void loop() {
         _DEBUGLN("]");
         
         mqttClient.subscribe(topicStateSetX.c_str());
+      }
+      else
+      {
+        _ERROR("Cannot connect to [");
+        _ERROR(mqttConfig.serverIP);
+        _ERRORLN("]");
+      }
     }
     mqttClient.loop();
     

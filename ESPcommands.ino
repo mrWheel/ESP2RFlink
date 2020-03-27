@@ -42,12 +42,14 @@ char    tmpChar[10];
     }
     else if (len >= 9 && (strncmp("ESP;INFO;",Buffer, 9) == 0 )) {
         Dprintln("[ESP] Recovered credentials:");
-        Dprint(" MQTT server IP : "); Dprintln(mqttConfig.serverIP);
-        Dprint("      MQTT user : "); Dprintln(mqttConfig.user);
-        Dprint("  MQTT password : "); Dprintln(mqttConfig.passwd);
-        Dprint(" MQTT top topic : "); Dprintln(mqttConfig.topTopic);
-        Dprint("\nWiFi via SSID: ");
-        Dprintln(String(WiFi.SSID()).c_str());
+        Dprint(" MQTT server IP : ["); Dprint(mqttConfig.serverIP); Dprintln("]");
+        Dprint("      MQTT user : ["); Dprint(mqttConfig.user);     Dprintln("]");
+        Dprint("  MQTT password : ["); Dprint(mqttConfig.passwd);   Dprintln("]");
+        Dprint(" MQTT top topic : ["); Dprint(mqttConfig.topTopic); Dprintln("]");
+        Dprint("\nWiFi via SSID: [");
+                        Dprint(String(WiFi.SSID()).c_str());  Dprintln("]");
+        Dprint("  WiFi via IP: [");
+                        Dprint(WiFi.localIP());               Dprintln("]");
         Dprintln("\nMQTT Topics:");
         Dprint("    topicState ["); Dprint(topicState);      Dprintln("]");
         Dprint(" topicStateSet ["); Dprint(topicStateSet);   Dprintln("]");
