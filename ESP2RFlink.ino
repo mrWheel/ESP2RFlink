@@ -1,36 +1,48 @@
 /*
-***************************************************************************
-**  Program  : ESP2RFlink
+ **************************************************************************
+ *  Program  : ESP2RFlink
 */
 #define _FW_VERSION "v1.1 (27-02-2020)"
 /*
-**  Copyright (c) 2020-2022 Willem Aandewiel
-**
-**  TERMS OF USE: MIT License. See bottom of file.
-***************************************************************************
-*
-  Arduino-IDE settings:
-
-    - Board             : "Generic ESP8266 Module"
-    - Flash mode        : "DOUT" | "DIO"    // change only after power-off and on again!
-    - Flash size        : "1MB (FS:none OAT:~502KB)
-    -   or maybe        : "512KB (FS:none OAT:~246KB)"
-    - DebugT port       : "Disabled"
-    - DebugT Level      : "None"
-    - IwIP Variant      : "v2 Lower Memory"
-    - Reset Method      : "none"   // but will depend on the programmer!
-    - Crystal Frequency : "26 MHz"
-    - VTables           : "Flash"
-    - Flash Frequency   : "40MHz"
-    - CPU Frequency     : "80 MHz"
-    - Buildin Led       : "2"  // not used?
-    - Upload Speed      : "115200"
-    - Erase Flash       : "Only Sketch"
+ *  Copyright (c) 2020-2022 Willem Aandewiel
+ *
+ *  TERMS OF USE: MIT License. See bottom of file.
+ ***************************************************************************
+ *
+ * Arduino-IDE settings:
+ *
+ *  - Board             : "Generic ESP8266 Module"
+ *  - Flash mode        : "DOUT" | "DIO"    // change only after power-off and on again!
+ *  - Flash size        : "1MB (FS:none OAT:~502KB)
+ *  -   or maybe        : "512KB (FS:none OAT:~246KB)"
+ *  - DebugT port       : "Disabled"
+ *  - DebugT Level      : "None"
+ *  - IwIP Variant      : "v2 Lower Memory"
+ *  - Reset Method      : "none"   // but will depend on the programmer!
+ *  - Crystal Frequency : "26 MHz"
+ *  - VTables           : "Flash"
+ *  - Flash Frequency   : "40MHz"
+ *  - CPU Frequency     : "80 MHz"
+ *  - Buildin Led       : "2"  // not used?
+ *  - Upload Speed      : "115200"
+ *  - Erase Flash       : "Only Sketch"
+ *
+ * Formatting ( http://astyle.sourceforge.net/astyle.html#_Quick_Start )
+ *   - Allman style (-A1)
+ *   - tab 2 spaces (-s2)
+ *   - Indent 'switch' blocks (-S)
+ *   - Indent preprocessor blocks (-xW)
+ *   - Indent multi-line preprocessor definitions ending with a backslash (-w)
+ *   - Indent C++ comments beginning in column one (-Y)
+ *   - Insert space padding after commas (-xg)
+ *   - Attach a pointer or reference operator (-k3)
+ *
+ * use:  astyle -A1 -s2 -S -xW -w -Y -xg -k3 <*.ino>
+ *
 */
 
 /*
-
-    The MQTT_MAX_PACKET_SIZE set to 200 in PubSubClient.h
+ *   The MQTT_MAX_PACKET_SIZE set to 200 in PubSubClient.h
 */
 #include <ESP8266WiFi.h>          // https://github.com/esp8266/Arduino
 #include <ESP8266WebServer.h>
