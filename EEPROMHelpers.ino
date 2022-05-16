@@ -1,36 +1,39 @@
 /*
-***************************************************************************  
+***************************************************************************
 **  Program  : EEPROMHelpers  (part of ESP2RFlink)
-**  
-**  Copyright (c) 2020 Willem Aandewiel 
 **
-**  TERMS OF USE: MIT License. See bottom of file.                                                            
-***************************************************************************      
+**  Copyright (c) 2020 Willem Aandewiel
+**
+**  TERMS OF USE: MIT License. See bottom of file.
+***************************************************************************
 */
 
 /** Load MQTT credentials from EEPROM */
-void loadCredentials() {
-    EEPROM.begin(512);
-    EEPROM.get(0, mqttConfig);
-    EEPROM.end();
-    if (!String(mqttConfig.configOK).equals("C")) {
-        mqttConfig.user[0]      = 0;
-        mqttConfig.passwd[0]    = 0;
-        mqttConfig.serverIP[0]  = 0;
-        mqttConfig.topTopic[0]  = 0;    
-        strcpy(mqttConfig.topTopic, "RFlink");
-    }
-    
+void loadCredentials()
+{
+  EEPROM.begin(512);
+  EEPROM.get(0, mqttConfig);
+  EEPROM.end();
+  if (!String(mqttConfig.configOK).equals("C"))
+  {
+    mqttConfig.user[0]      = 0;
+    mqttConfig.passwd[0]    = 0;
+    mqttConfig.serverIP[0]  = 0;
+    mqttConfig.topTopic[0]  = 0;
+    strcpy(mqttConfig.topTopic, "RFlink");
+  }
+
 }   // loadCredentials()
 
 /** Store MQTT credentials to EEPROM */
-void saveCredentials() {
-    EEPROM.begin(512);
-    mqttConfig.configOK = 'C';
-    EEPROM.put(0, mqttConfig);
-    EEPROM.commit();
-    EEPROM.end();
-    
+void saveCredentials()
+{
+  EEPROM.begin(512);
+  mqttConfig.configOK = 'C';
+  EEPROM.put(0, mqttConfig);
+  EEPROM.commit();
+  EEPROM.end();
+
 }   // saveCredentials()
 
 
@@ -54,6 +57,6 @@ void saveCredentials() {
 * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT
 * OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
 * THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-* 
+*
 ****************************************************************************
 */

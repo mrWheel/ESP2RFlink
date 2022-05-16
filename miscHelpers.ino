@@ -1,76 +1,96 @@
 /*
-***************************************************************************  
+***************************************************************************
 **  Program  : miscHelpers  (part of ESP2RFlink)
-**  
-**  Copyright (c) 2020 Willem Aandewiel 
 **
-**  TERMS OF USE: MIT License. See bottom of file.                                                            
-***************************************************************************      
+**  Copyright (c) 2020 Willem Aandewiel
+**
+**  TERMS OF USE: MIT License. See bottom of file.
+***************************************************************************
 */
 
 
 
 //=================================================================================
-void blink() {
-    //toggle state
-    digitalWrite(_BLINK_LED, !digitalRead(_BLINK_LED));   // toggle pin to the opposite state
-    flashTimer = millis() + 100;  
+void blink()
+{
+  //toggle state
+  digitalWrite(_BLINK_LED, !digitalRead(_BLINK_LED));   // toggle pin to the opposite state
+  flashTimer = millis() + 100;
 }   // blink()
 
 //=================================================================================
-void pingPong() {
-    Serial.println("10;PING;");
+void pingPong()
+{
+  Serial.println("10;PING;");
 }   // pingPong()
 
 
 //=================================================================================
-float hextofloat(char* hexchars) {return float(strtol(hexchars,NULL,16));}
+float hextofloat(char *hexchars)
+{
+  return float(strtol(hexchars, NULL, 16));
+}
 //float hextofloat(String hexchars) {return float(strtol(hexchars.c_str()(),NULL,16));}
-int hextoint(char* hexchars) {return strtol(hexchars,NULL,16);}
+int hextoint(char *hexchars)
+{
+  return strtol(hexchars, NULL, 16);
+}
 
 
 //=================================================================================
-uint8_t splitBuffer(char* Buffer, int len) {
-int     fieldNum, tmpInt, ix;
+uint8_t splitBuffer(char *Buffer, int len)
+{
+  int     fieldNum, tmpInt, ix;
 
-//  _DEBUG("splitBuffer(): Buffer[");
-//  _DEBUG(Buffer);
-//  _DEBUG("] len[");
-//  _DEBUG(len);
-//  _DEBUGLN("]");
-    fieldNum = 0;
-    field[fieldNum] = "";
-    for (int i=0; i< len; i++) {
-        if (Buffer[i] == ';' || Buffer[i] == '=' || Buffer[i] == '\n' || Buffer[i] == '\0') {
-            fieldNum++;
-            field[fieldNum] = "";
-        } else {
-            field[fieldNum] += Buffer[i];
-        }
-        yield();
+  //  _DEBUG("splitBuffer(): Buffer[");
+  //  _DEBUG(Buffer);
+  //  _DEBUG("] len[");
+  //  _DEBUG(len);
+  //  _DEBUGLN("]");
+  fieldNum = 0;
+  field[fieldNum] = "";
+  for (int i=0; i< len; i++)
+  {
+    if (Buffer[i] == ';' || Buffer[i] == '=' || Buffer[i] == '\n' || Buffer[i] == '\0')
+    {
+      fieldNum++;
+      field[fieldNum] = "";
     }
-    
-    _DEBUG("splitBuffer(): found [");
-    _DEBUG(fieldNum);
-    _DEBUGLN("] fields.");
+    else
+    {
+      field[fieldNum] += Buffer[i];
+    }
+    yield();
+  }
 
-    for (int i=0; i<fieldNum; i++) {
-        _DEBUG("["); _DEBUG(i); _DEBUG("] \""); _DEBUG(field[i]); _DEBUGLN("\"");
-    }
-    
-    return fieldNum;
-    
+  _DEBUG("splitBuffer(): found [");
+  _DEBUG(fieldNum);
+  _DEBUGLN("] fields.");
+
+  for (int i=0; i<fieldNum; i++)
+  {
+    _DEBUG("[");
+    _DEBUG(i);
+    _DEBUG("] \"");
+    _DEBUG(field[i]);
+    _DEBUGLN("\"");
+  }
+
+  return fieldNum;
+
 }   // splitBuffer()
 
 
 //=================================================================================
-String macToStr(const uint8_t* mac) {
-    String result;
-    for (int i = 0; i < 6; ++i) {
-        result += String(mac[i], 16);
-        if (i < 5) result += ':';
-    }
-    return result;
+String macToStr(const uint8_t *mac)
+{
+  String result;
+  for (int i = 0; i < 6; ++i)
+  {
+    result += String(mac[i], 16);
+    if (i < 5) result += ':';
+  }
+  return result;
 }   // macToStr()
 
 
@@ -95,6 +115,6 @@ String macToStr(const uint8_t* mac) {
 * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT
 * OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
 * THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-* 
+*
 ****************************************************************************
 */
