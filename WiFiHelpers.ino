@@ -42,8 +42,12 @@ void setupWiFi() {
     //WiFiManager
     //Local intialization. Once its business is done, there is no need to keep it around
     WiFiManager wifiManager;
-    if (mqttConfig.serverIP[0] == 0 || mqttConfig.user[0] == 0 || mqttConfig.passwd[0] == 0) {
+    if (!strcasecmp("none", mqttConfig.topTopic) == 0)
+    {
+      if (mqttConfig.serverIP[0] == 0 || mqttConfig.user[0] == 0 || mqttConfig.passwd[0] == 0) 
+      {
         wifiManager.resetSettings();
+      }
     }
     wifiManager.setConfigPortalTimeout(360);
     WiFiManagerParameter custom_mqtt_server("server", "mqtt serverIP", mqttConfig.serverIP, 30);
@@ -68,7 +72,7 @@ void setupWiFi() {
     //if it does not connect it starts an access point with the specified name
     //here  "AutoConnectAP"
     //and goes into a blocking loop awaiting configuration
-    wifiManager.autoConnect("AutoConnectAP");
+    wifiManager.autoConnect("ESP2RFlink");
 
     autoConnectTimeOut.detach();
     

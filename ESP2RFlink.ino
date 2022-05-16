@@ -2,31 +2,30 @@
 ***************************************************************************  
 **  Program  : ESP2RFlink
 */
-#define _FW_VERSION "v0.7 (27-02-2020)"
+#define _FW_VERSION "v1.1 (27-02-2020)"
 /*
-**  Copyright (c) 2020 Willem Aandewiel
+**  Copyright (c) 2020-2022 Willem Aandewiel
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
 *      
-  Arduino-IDE settings for DSMR-logger Version 4 (ESP-01):
+  Arduino-IDE settings:
 
-    - Board: "Generic ESP8266 Module"
-    - Flash mode: "DOUT" | "DIO"    // change only after power-off and on again!
-    - Flash size: "1MB (FS:none OAT:~502KB)  
-    -   or maybe: "512KB (FS:none OAT:~246KB)"
-    - DebugT port: "Disabled"
-    - DebugT Level: "None"
-    - IwIP Variant: "v2 Lower Memory"
-    - Reset Method: "none"   // but will depend on the programmer!
-    - Crystal Frequency: "26 MHz" 
-    - VTables: "Flash"
-    - Flash Frequency: "40MHz"
-    - CPU Frequency: "80 MHz"
-    - Buildin Led: "2"  // not used?
-    - Upload Speed: "115200"                                                                                                                                                                                                                                                 
-    - Erase Flash: "Only Sketch"
-    - Port: <select correct port>
+    - Board             : "Generic ESP8266 Module"
+    - Flash mode        : "DOUT" | "DIO"    // change only after power-off and on again!
+    - Flash size        : "1MB (FS:none OAT:~502KB)  
+    -   or maybe        : "512KB (FS:none OAT:~246KB)"
+    - DebugT port       : "Disabled"
+    - DebugT Level      : "None"
+    - IwIP Variant      : "v2 Lower Memory"
+    - Reset Method      : "none"   // but will depend on the programmer!
+    - Crystal Frequency : "26 MHz" 
+    - VTables           : "Flash"
+    - Flash Frequency   : "40MHz"
+    - CPU Frequency     : "80 MHz"
+    - Buildin Led       : "2"  // not used?
+    - Upload Speed      : "115200"                                                                                                                                                                                                                                                 
+    - Erase Flash       : "Only Sketch"
 */
 
 /*
@@ -85,6 +84,7 @@ String      topicJSON       = "RFlink/JSON" ;
 String      MQTTTopic;
 int         pingNum;
 static      mqttStruct mqttConfig;
+bool        connect2MQTT;
 
 char        inBuffer[_MAX_BUFFER+5];    // +5 is marge zodat ik niet echt hoef na te denken
 char        outBuffer[_MAX_BUFFER+5];
@@ -562,7 +562,7 @@ void parseFromRFlink(char* Buffer, int len) {
         Dprint("RFLNK: ");
         Dprintln(Buffer);
     }
-    replyRFlink2MQTT(Buffer, len);
+    if (connect2MQTT)    replyRFlink2MQTT(Buffer, len);
     
     //==== empty Buffer ====
     len = 0;
@@ -719,7 +719,10 @@ void setup() {
     setupWiFi();
 
     loadCredentials();
-    
+        if (mqttConfig.serverIP[0] == 0)
+          connect2MQTT = false;
+    else  connect2MQTT = true;
+
     topicMessage    = String(mqttConfig.topTopic) + "/Message";
     topicState      = String(mqttConfig.topTopic) + "/State";
     topicStateSet   = String(mqttConfig.topTopic) + "/State/Set";
@@ -728,12 +731,15 @@ void setup() {
 
     Serial.println("[ESP] WiFi setup complete");
     
-    mqttClient.setServer(mqttConfig.serverIP, 1883);
-    mqttClient.setCallback(callbackFromMQTT);
-    Serial.printf("[ESP] MQTT server [%s] setup complete\r\n", mqttConfig.serverIP);
-    if (strlen(mqttConfig.user) == 0)
-          Serial.println("[ESP] MQTT server no username/password");
-    else  Serial.printf("[ESP] MQTT server user[%s]password\r\n", mqttConfig.user, mqttConfig.passwd);
+    if (connect2MQTT)
+    {
+      mqttClient.setServer(mqttConfig.serverIP, 1883);
+      mqttClient.setCallback(callbackFromMQTT);
+      Serial.printf("[ESP] MQTT server [%s] setup complete\r\n", mqttConfig.serverIP);
+      if (strlen(mqttConfig.user) == 0)
+            Serial.println("[ESP] MQTT server no username/password");
+      else  Serial.printf("[ESP] MQTT server user[%s]password\r\n", mqttConfig.user, mqttConfig.passwd);
+    }
     
     blinker.attach(2.0, blink);
     flashTimer = millis() + 200;
@@ -756,7 +762,7 @@ void loop() {
     if (millis() > reconnectTimer)
     {
       reconnectTimer = millis() + 30000;   
-      if (!mqttClient.connected()) {
+      if (connect2MQTT && !mqttClient.connected()) {
         reconnect2MQTT();
       }
       if (mqttClient.connected())
@@ -770,16 +776,20 @@ void loop() {
         
         mqttClient.subscribe(topicStateSetX.c_str());
       }
-      else
+      else if (connect2MQTT)
       {
         _ERROR("Cannot connect to [");
         _ERROR(mqttConfig.serverIP);
         _ERRORLN("]");
       }
     }
-    mqttClient.loop();
     
-    if (waitForOK < millis()) {
+    if (connect2MQTT)
+    {
+      mqttClient.loop();
+    
+      if (waitForOK < millis()) 
+      {
         //_DEBUG("Check stack ... [");
         //_DEBUG(waitForOK);
         //_DEBUG("] millis() [");
@@ -799,6 +809,7 @@ void loop() {
             sTopic[0]     = '\0';
             sPayLoad[0]   = '\0';
         }
+      }
     }
 
      // look for telnet client connect trial
