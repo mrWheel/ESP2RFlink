@@ -19,7 +19,7 @@ void parseESPcommand(char *Buffer, int len)
   Dprint("[ESP] command found [");
   Dprint(Buffer);
   Dprintln("]\n");
-  if (len >= 11 && (strncmp("ESP;DEBUG=", Buffer, 10) == 0 ))
+  if (len >= 11 && (strncasecmp("ESP;DEBUG=", Buffer, 10) == 0 ))
   {
     memcpy(tmpChar, Buffer + 10 /* Offset */, 1 /* Length */);
     tmpChar[1] = '\0'; /* Add terminator */
@@ -55,8 +55,15 @@ void parseESPcommand(char *Buffer, int len)
         Dprintln("     Errors, Always, Warnings, Info and Debug ");
     }
   }
-  else if (len >= 9 && (strncmp("ESP;INFO;", Buffer, 9) == 0 ))
+  else if (len >= 9 && (strncasecmp("ESP;INFO;", Buffer, 9) == 0 ))
   {
+    Dprintln("[ESP] Info:");
+    Dprint("    Hostname : [");
+    Dprint(_HOSTNAME);
+    Dprintln("]");
+    Dprint("  FW Version : [");
+    Dprint(_FW_VERSION);
+    Dprintln("]\r\n");
     Dprintln("[ESP] Recovered credentials:");
     Dprint(" MQTT server IP : [");
     Dprint(mqttConfig.serverIP);
@@ -101,7 +108,7 @@ void parseESPcommand(char *Buffer, int len)
     DebugLvl = tmpInt;
     Dprintln("==================================================\n");
   }
-  else if (len >= 10 && (strncmp("ESP;RESET;", Buffer, 10) == 0 ))
+  else if (len >= 10 && (strncasecmp("ESP;RESET;", Buffer, 10) == 0 ))
   {
     WiFiManager wifiManager;
     wifiManager.resetSettings();

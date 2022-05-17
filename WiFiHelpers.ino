@@ -108,21 +108,40 @@ void setupWiFi()
   _ALWAYSLN(WiFi.SSID());
   _ALWAYS(  "setupWiFi(): IP address: ");
   _ALWAYSLN(WiFi.localIP());
+  _ALWAYS("mDNS setup as [")
+  _ALWAYS(_HOSTNAME);
+  _ALWAYSLN(".local]");
+  if (MDNS.begin(_HOSTNAME))               // Start the mDNS responder for Hostname.local
+  {
+    _ALWAYS("mDNS responder started as [");
+    _ALWAYS(_HOSTNAME);
+    _ALWAYSLN(".local]");
+    MDNS.addService("tcp", "tcp", 23);
+  } 
+  else 
+  {
+    _ALWAYSLN(F("Error setting up MDNS responder!"));
+  }
   Dflush();
+
   // Generate client name based on topTopic and 16 bits of microsecond counter
   clientName  = String(mqttConfig.topTopic);
   clientName += String(micros() & 0xff, 16);
 
   if (!strcasecmp("none", mqttConfig.topTopic) == 0)
   {
-    Dprint(  "setupWiFi(): Connected to ");
+    Dprint(  "setupWiFi(): Connected to MQTT broker @");
     Dprint(  mqttConfig.serverIP);
-    Dprint(  " as ");
-    Dprint(  clientName);
-    Dprint(  " with [");
-    Dprint(  mqttConfig.user);
+    Dprint(  " as [");
+    Dprint(clientName);
+    Dprint(  "] with [");
+    if (mqttConfig.user[0] == 0)
+          { Dprint("No Username");  }
+    else  { Dprint(mqttConfig.user);}
     Dprint(  "]/[");
-    Dprint(  mqttConfig.passwd);
+    if (mqttConfig.passwd[0] == 0)
+          { Dprint("No Password");    }
+    else  { Dprint(mqttConfig.passwd);}
     Dprintln("] ");
   }
   else
@@ -134,7 +153,10 @@ void setupWiFi()
 
   telnetServer.begin();
   telnetServer.setNoDelay(false);
-  Serial.println("Please connect Telnet Client, exit with ^] and 'quit'");
+  Serial.printf("Please connect Telnet Client @");
+  Serial.print(WiFi.localIP());
+  Serial.printf("or %s.local\r\n", _HOSTNAME);
+  Serial.println("exit telnet with ^] and 'quit'");
 
 }   // setupWiFi()
 

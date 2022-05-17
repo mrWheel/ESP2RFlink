@@ -2,7 +2,7 @@
  **************************************************************************
  *  Program  : ESP2RFlink
 */
-#define _FW_VERSION "v1.1 (27-02-2020)"
+#define _FW_VERSION "v1.1 (17-05-2022)"
 /*
  *  Copyright (c) 2020-2022 Willem Aandewiel
  *
@@ -46,12 +46,14 @@
 */
 #include <ESP8266WiFi.h>          // https://github.com/esp8266/Arduino
 #include <ESP8266WebServer.h>
+#include <ESP8266mDNS.h>          // part of ESP8266 Core https://github.com/esp8266/Arduino
 #include <WiFiManager.h>          // https://github.com/tzapu/WiFiManager
 #include <PubSubClient.h>
 #include <EEPROM.h>
 #include <Ticker.h>
 #include "macros.h"
 
+#define _HOSTNAME    "ESP2RFlink"
 #define _MAX_BUFFER  200
 #define _MAX_STACK    10
 #define _TEMP_MAX     50.0
@@ -275,7 +277,7 @@ void parseFromTelnet(char *Buffer, int len)
   _INFO(Buffer);
   _INFOLN("]");
 
-  if (len >= 3 && (strncmp("ESP", Buffer, 3) == 0 ))
+  if (len >= 3 && (strncasecmp("ESP", Buffer, 3) == 0 ))
   {
     parseESPcommand(Buffer, len);
     return;
@@ -827,7 +829,7 @@ void setup()
 
   Serial.begin(57600);
   Serial.println();
-  Serial.println("[ESP2RFlinkTelnet v0.7] RFlink bridge to MQTT starting..\n");
+  Serial.printf("[%s (%s)] RFlink bridge to MQTT starting..\r\n", _HOSTNAME, _FW_VERSION);
   delay(100);
   Serial.flush();
 
@@ -852,8 +854,8 @@ void setup()
     mqttClient.setCallback(callbackFromMQTT);
     Serial.printf("[ESP] MQTT server [%s] setup complete\r\n", mqttConfig.serverIP);
     if (strlen(mqttConfig.user) == 0)
-      Serial.println("[ESP] MQTT server no username/password");
-    else  Serial.printf("[ESP] MQTT server user[%s]password\r\n", mqttConfig.user, mqttConfig.passwd);
+         Serial.println("[ESP] MQTT server no username/password");
+    else  Serial.printf("[ESP] MQTT server user[%s], password[%s]\r\n", mqttConfig.user, mqttConfig.passwd);
   }
 
   blinker.attach(2.0, blink);
@@ -870,6 +872,8 @@ void setup()
 //=================================================================================
 void loop()
 {
+  MDNS.update();
+
   //if ((int32_t)(millis() - builtinLedTimer) > 0) {
   //    builtinLedTimer = millis()+1000;
   //    digitalWrite(BUILTIN_LED, !digitalRead(BUILTIN_LED));
